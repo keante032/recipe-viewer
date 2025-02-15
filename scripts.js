@@ -47,7 +47,9 @@ function filterRecipes() {
 	const filteredRecipes = recipes
 		.map((recipe, index) => ({ recipe, index }))
 		.filter(({ recipe }) => {
-			return recipe.name.toLowerCase().includes(searchText) || recipe.description.toLowerCase().includes(searchText) || recipe.ingredients.some((ingredient) => ingredient.toLowerCase().includes(searchText)) || recipe.directions.some((direction) => direction.toLowerCase().includes(searchText));
+			const ingredientsMatch = recipe.ingredients.some((section) => section.title.toLowerCase().includes(searchText) || section.items.some((item) => item.toLowerCase().includes(searchText)));
+			const directionsMatch = recipe.directions.some((section) => section.title.toLowerCase().includes(searchText) || section.items.some((item) => item.toLowerCase().includes(searchText)));
+			return recipe.name.toLowerCase().includes(searchText) || recipe.description.toLowerCase().includes(searchText) || ingredientsMatch || directionsMatch;
 		});
 
 	const recipeList = document.getElementById("recipeList");
