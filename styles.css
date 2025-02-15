@@ -108,28 +108,6 @@ h1 {
 	align-items: normal; /* Align items vertically */
 }
 
-.button,
-label.button {
-	background-color: #007bff;
-	color: white;
-	padding: 10px 20px; /* Adjust padding for a more normal button width */
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	transition: background-color 0.2s;
-	display: inline-block;
-	text-align: center;
-	font-size: 16px; /* Ensure the font size is the same */
-	line-height: 1.5; /* Ensure the line height is the same */
-	height: 40px; /* Set a fixed height to ensure consistency */
-	box-sizing: border-box; /* Ensure padding and borders are included in the height calculation */
-}
-
-.button:hover,
-label.button:hover {
-	background-color: #0056b3;
-}
-
 .button + .button,
 label.button + .button {
 	margin-left: 10px; /* Add some space between the buttons */
@@ -154,6 +132,45 @@ textarea {
 textarea {
 	resize: vertical;
 	max-height: 200px; /* Limit textarea height */
+}
+
+.button,
+label.button {
+	color: white;
+	padding: 10px 20px; /* Adjust padding for a more normal button width */
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 5px;
+	display: inline-block;
+	text-align: center;
+	font-size: 16px; /* Ensure the font size is the same */
+	line-height: 1.5; /* Ensure the line height is the same */
+	box-sizing: border-box; /* Ensure padding and borders are included in the height calculation */
+}
+
+.button-red {
+	background-color: #ff4d4d;
+}
+
+.button-green {
+	background-color: #4caf50;
+}
+
+.button-blue {
+	background-color: #2196f3;
+}
+
+.button-orange {
+	background-color: #ff9800;
+}
+
+.button-gray {
+	background-color: #9e9e9e;
+}
+
+.button-purple {
+	background-color: #9c27b0;
 }
 
 /* Responsive design */

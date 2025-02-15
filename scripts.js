@@ -111,14 +111,17 @@ function showRecipeDetail(index) {
 
 function toggleEditMode() {
 	const editSaveButton = document.getElementById("editSaveButton");
+	const deleteButton = document.getElementById("deleteButton");
 	const detailContent = document.getElementById("detailContent");
 
 	if (editSaveButton.innerText === "Edit Recipe") {
 		enterEditMode(detailContent);
 		editSaveButton.innerText = "Save Changes";
+		deleteButton.style.display = "inline-block";
 	} else {
 		saveRecipeChanges();
 		editSaveButton.innerText = "Edit Recipe";
+		deleteButton.style.display = "none";
 	}
 }
 
@@ -127,10 +130,11 @@ function enterEditMode(detailContent) {
 
 	let ingredientsHtml = "";
 	recipe.ingredients.forEach((section, sectionIndex) => {
+		const ingredientLines = section.items.join("\n").split("\n").length;
 		ingredientsHtml += `
             <div class="ingredient-section" data-section-index="${sectionIndex}">
                 <h4><input type="text" value="${section.title}" class="ingredientSectionTitle" /></h4>
-                <textarea class="ingredientTextarea" data-section-index="${sectionIndex}">${section.items.join("\n")}</textarea>
+                <textarea class="ingredientTextarea" data-section-index="${sectionIndex}" rows="${ingredientLines}">${section.items.join("\n")}</textarea>
                 <button onclick="removeIngredientSection(${sectionIndex})">Remove Section</button>
             </div>
         `;
@@ -139,10 +143,11 @@ function enterEditMode(detailContent) {
 
 	let directionsHtml = "";
 	recipe.directions.forEach((section, sectionIndex) => {
+		const directionLines = section.items.join("\n").split("\n").length;
 		directionsHtml += `
             <div class="direction-section" data-section-index="${sectionIndex}">
                 <h4><input type="text" value="${section.title}" class="directionSectionTitle" /></h4>
-                <textarea class="directionTextarea" data-section-index="${sectionIndex}">${section.items.join("\n")}</textarea>
+                <textarea class="directionTextarea" data-section-index="${sectionIndex}" rows="${directionLines}">${section.items.join("\n")}</textarea>
                 <button onclick="removeDirectionSection(${sectionIndex})">Remove Section</button>
             </div>
         `;
@@ -152,7 +157,9 @@ function enterEditMode(detailContent) {
 	detailContent.innerHTML = `
         <h2><input type="text" id="recipeName" value="${recipe.name}" /></h2>
         <h3>Description</h3>
-        <textarea id="recipeDescription">${recipe.description || ""}</textarea>
+        <textarea id="recipeDescription" rows="${recipe.description.split("\n").length}">${recipe.description || ""}</textarea>
+        <h3>Image URL</h3>
+        <input type="text" id="recipeImageUrl" value="${recipe.imageUrl || ""}" />
         <h3>Ingredients</h3>
         <div id="ingredientsContainer">${ingredientsHtml}</div>
         <h3>Directions</h3>
@@ -218,12 +225,14 @@ function goBack() {
 	document.getElementById("searchInput").style.display = "block";
 	document.getElementById("recipeList").style.display = "grid";
 	document.getElementById("recipeDetail").style.display = "none";
+	document.getElementById("deleteButton").style.display = "none";
 }
 
 function saveRecipeChanges() {
 	const updatedRecipe = {
 		name: document.getElementById("recipeName").value,
 		description: document.getElementById("recipeDescription").value,
+		imageUrl: document.getElementById("recipeImageUrl").value,
 		ingredients: [],
 		directions: []
 	};
@@ -286,4 +295,28 @@ function clearRecipes() {
 	localStorage.removeItem("recipes");
 	recipes = [];
 	displayRecipeCards();
+}
+
+function addNewRecipe() {
+	const newRecipe = {
+		name: "New Recipe",
+		description: "",
+		imageUrl: "",
+		ingredients: [{ title: "", items: [] }],
+		directions: [{ title: "", items: [] }]
+	};
+	recipes.push(newRecipe);
+	saveRecipesToLocalStorage();
+	displayRecipeCards();
+	showRecipeDetail(recipes.length - 1);
+	toggleEditMode();
+}
+
+function deleteRecipe() {
+	if (currentIndex !== null) {
+		recipes.splice(currentIndex, 1);
+		saveRecipesToLocalStorage();
+		displayRecipeCards();
+		goBack();
+	}
 }

@@ -19,10 +19,11 @@
 		<div class="container">
 			<!-- File input for uploading the JSON file -->
 			<div id="loadButtons" class="button-container">
-				<label for="fileInput" id="uploadButton" class="button">Load Recipes</label>
+				<label for="fileInput" id="uploadButton" class="button button-green">Load</label>
 				<input type="file" id="fileInput" accept=".json" />
-				<button id="downloadButton" class="button" onclick="downloadRecipes()">Save Recipes</button>
-				<button id="clearButton" class="button" onclick="clearRecipes()">Clear Recipes</button>
+				<button id="downloadButton" class="button button-blue" onclick="downloadRecipes()">Save</button>
+				<button id="clearButton" class="button button-red" onclick="clearRecipes()">Clear</button>
+				<button id="addRecipeButton" onclick="addNewRecipe()" class="button button-orange">Add New</button>
 			</div>
 
 			<!-- Search input for filtering recipes -->
@@ -34,8 +35,9 @@
 			<!-- Section for displaying recipe details -->
 			<div id="recipeDetail" class="recipe-detail">
 				<div id="detailButtons" class="button-container">
-					<button id="backButton" onclick="goBack()" class="button">Back to Recipe List</button>
-					<button id="editSaveButton" onclick="toggleEditMode()" class="button">Edit Recipe</button>
+					<button id="backButton" onclick="goBack()" class="button button-gray">Back to Recipe List</button>
+					<button id="editSaveButton" onclick="toggleEditMode()" class="button button-purple">Edit Recipe</button>
+					<button id="deleteButton" onclick="deleteRecipe()" class="button button-red" style="display: none">Delete Recipe</button>
 				</div>
 				<div id="detailContent"></div>
 			</div>
