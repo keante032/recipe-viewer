@@ -50,6 +50,9 @@ h1 {
 	padding: 10px;
 	font-size: 16px;
 	box-sizing: border-box; /* Ensure padding is included in the width calculation */
+	position: absolute;
+	left: -9999px; /* Move the input out of the viewport */
+	display: none; /* Hide the input */
 }
 
 .recipe-list {
@@ -106,32 +109,7 @@ h1 {
 	gap: 20px; /* Add some space between the buttons */
 	margin-bottom: 20px; /* Add some space below the button container */
 	align-items: normal; /* Align items vertically */
-}
-
-.button + .button,
-label.button + .button {
-	margin-left: 10px; /* Add some space between the buttons */
-}
-
-#fileInput {
-	position: absolute;
-	left: -9999px; /* Move the input out of the viewport */
-	display: none; /* Hide the input */
-}
-
-input,
-textarea {
-	width: 100%;
-	padding: 10px;
-	margin: 5px 0;
-	border-radius: 5px;
-	border: 1px solid #ccc;
-	box-sizing: border-box; /* Ensure padding is included in the width calculation */
-}
-
-textarea {
-	resize: vertical;
-	max-height: 200px; /* Limit textarea height */
+	flex-wrap: wrap; /* Allow buttons to wrap */
 }
 
 .button,
@@ -141,7 +119,7 @@ label.button {
 	border: none;
 	border-radius: 5px;
 	cursor: pointer;
-	margin: 5px;
+	margin: 0.5em; /* Use em for margin */
 	display: inline-flex;
 	align-items: center;
 	text-align: center;
@@ -185,7 +163,26 @@ label.button {
 		padding: 10px;
 	}
 
+	.button-container {
+		gap: 10px; /* Add some space between the buttons */
+	}
+
 	button {
 		padding: 8px 12px;
 	}
+}
+
+input,
+textarea {
+	width: 100%;
+	padding: 10px;
+	margin: 5px 0;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	box-sizing: border-box; /* Ensure padding is included in the width calculation */
+}
+
+textarea {
+	resize: vertical;
+	max-height: 200px; /* Limit textarea height */
 }
