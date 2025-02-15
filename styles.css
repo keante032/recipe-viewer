@@ -142,11 +142,13 @@ label.button {
 	border-radius: 5px;
 	cursor: pointer;
 	margin: 5px;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	text-align: center;
 	font-size: 16px; /* Ensure the font size is the same */
 	line-height: 1.5; /* Ensure the line height is the same */
 	box-sizing: border-box; /* Ensure padding and borders are included in the height calculation */
+	vertical-align: middle; /* Align text vertically in the middle */
 }
 
 .button-red {
