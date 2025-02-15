@@ -1,0 +1,168 @@
+/* Add a header and footer */
+header, footer {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+}
+
+header h1, footer p {
+    margin: 0;
+}
+
+/* Prevent horizontal scrolling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.container {
+    max-width: 90%; /* Use 90% of the screen width */
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box; /* Ensure padding is included in the width calculation */
+    margin: 0 auto; /* Center the container */
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+#fileInput {
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensure padding is included in the width calculation */
+}
+
+.recipe-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Use auto-fit to adjust columns */
+    gap: 20px;
+    margin-top: 20px;
+    overflow-y: auto; /* Make recipe list scrollable */
+    flex-grow: 1;
+    max-height: calc(100vh - 160px); /* Adjust for header, input, and spacing */
+    width: 100%; /* Ensure the recipe list takes up the full width of its parent */
+    box-sizing: border-box; /* Ensure padding and borders are included in the width calculation */
+    padding: 10px 10px; /* Add padding to prevent cards from being cut off */
+}
+
+.recipe-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensure the image stays at the bottom */
+    height: 90%; /* Ensure the card takes up the full height */
+}
+
+.recipe-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.recipe-card img {
+    width: 100%;
+    height: 200px; /* Set a fixed height for the images */
+    object-fit: cover; /* Crop the images to cover the entire area */
+    border-radius: 8px;
+}
+
+.recipe-detail {
+    display: none;
+    text-align: left;
+    max-height: 80vh; /* Limit height to avoid overflowing */
+    overflow-y: auto; /* Make recipe detail scrollable */
+    width: 100%; /* Ensure the recipe detail takes up the full width of its parent */
+    box-sizing: border-box;
+    padding: 0 10px; /* Add padding to prevent content from being cut off */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Add some space between the buttons */
+    margin-bottom: 20px; /* Add some space below the button container */
+    align-items: normal; /* Align items vertically */
+}
+
+.button, label.button {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px; /* Adjust padding for a more normal button width */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: inline-block;
+    text-align: center;
+    font-size: 16px; /* Ensure the font size is the same */
+    line-height: 1.5; /* Ensure the line height is the same */
+    height: 40px; /* Set a fixed height to ensure consistency */
+    box-sizing: border-box; /* Ensure padding and borders are included in the height calculation */
+}
+
+.button:hover, label.button:hover {
+    background-color: #0056b3;
+}
+
+.button + .button, label.button + .button {
+    margin-left: 10px; /* Add some space between the buttons */
+}
+
+input[type="file"] {
+    position: absolute;
+    left: -9999px; /* Move the input out of the viewport */
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Ensure padding is included in the width calculation */
+}
+
+textarea {
+    resize: vertical;
+    max-height: 200px; /* Limit textarea height */
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    .recipe-card {
+        padding: 10px;
+    }
+
+    button {
+        padding: 8px 12px;
+    }
+}
