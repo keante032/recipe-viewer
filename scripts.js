@@ -1,227 +1,289 @@
 let recipes = [];
 let currentIndex = null;
 
-document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-document.addEventListener('DOMContentLoaded', loadRecipesFromLocalStorage);
+document.getElementById("fileInput").addEventListener("change", handleFileSelect);
+document.addEventListener("DOMContentLoaded", loadRecipesFromLocalStorage);
 
 function handleFileSelect(event) {
-    const file = event.target.files[0];
+	const file = event.target.files[0];
 
-    if (!file) return;
+	if (!file) return;
 
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        try {
-            recipes = JSON.parse(e.target.result);
-            saveRecipesToLocalStorage();
-            displayRecipeCards();
-        } catch (error) {
-            alert('Error parsing the JSON file');
-        }
-    };
-    
-    reader.readAsText(file);
+	const reader = new FileReader();
+
+	reader.onload = function (e) {
+		try {
+			recipes = JSON.parse(e.target.result);
+			saveRecipesToLocalStorage();
+			displayRecipeCards();
+		} catch (error) {
+			alert("Error parsing the JSON file");
+		}
+	};
+
+	reader.readAsText(file);
 }
 
 function displayRecipeCards() {
-    const recipeList = document.getElementById('recipeList');
-    recipeList.innerHTML = '';
+	const recipeList = document.getElementById("recipeList");
+	recipeList.innerHTML = "";
 
-    recipes.forEach((recipe, index) => {
-        const card = document.createElement('div');
-        card.classList.add('recipe-card');
-        card.innerHTML = `
+	recipes.forEach((recipe, index) => {
+		const card = document.createElement("div");
+		card.classList.add("recipe-card");
+		card.innerHTML = `
             <h3>${recipe.name}</h3>
-            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}">` : ''}
+            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}">` : ""}
         `;
 
-        card.addEventListener('click', () => showRecipeDetail(index));
+		card.addEventListener("click", () => showRecipeDetail(index));
 
-        recipeList.appendChild(card);
-    });
+		recipeList.appendChild(card);
+	});
 }
 
 function filterRecipes() {
-    const searchText = document.getElementById('searchInput').value.toLowerCase();
-    const filteredRecipes = recipes.map((recipe, index) => ({ recipe, index })).filter(({ recipe }) => {
-        return recipe.name.toLowerCase().includes(searchText) ||
-               recipe.description.toLowerCase().includes(searchText) ||
-               recipe.ingredients.some(ingredient => ingredient.toLowerCase().includes(searchText)) ||
-               recipe.directions.some(direction => direction.toLowerCase().includes(searchText));
-    });
+	const searchText = document.getElementById("searchInput").value.toLowerCase();
+	const filteredRecipes = recipes
+		.map((recipe, index) => ({ recipe, index }))
+		.filter(({ recipe }) => {
+			return recipe.name.toLowerCase().includes(searchText) || recipe.description.toLowerCase().includes(searchText) || recipe.ingredients.some((ingredient) => ingredient.toLowerCase().includes(searchText)) || recipe.directions.some((direction) => direction.toLowerCase().includes(searchText));
+		});
 
-    const recipeList = document.getElementById('recipeList');
-    recipeList.innerHTML = '';
+	const recipeList = document.getElementById("recipeList");
+	recipeList.innerHTML = "";
 
-    filteredRecipes.forEach(({ recipe, index }) => {
-        const card = document.createElement('div');
-        card.classList.add('recipe-card');
-        card.innerHTML = `
+	filteredRecipes.forEach(({ recipe, index }) => {
+		const card = document.createElement("div");
+		card.classList.add("recipe-card");
+		card.innerHTML = `
             <h3>${recipe.name}</h3>
-            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}">` : ''}
+            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}">` : ""}
         `;
 
-        card.addEventListener('click', () => showRecipeDetail(index));
+		card.addEventListener("click", () => showRecipeDetail(index));
 
-        recipeList.appendChild(card);
-    });
+		recipeList.appendChild(card);
+	});
 }
 
 function showRecipeDetail(index) {
-    currentIndex = index;
-    const recipe = recipes[index];
-    const detailContent = document.getElementById('detailContent');
-    
-    let ingredientsHtml = '<ul>';
-    recipe.ingredients.forEach(ingredient => {
-        ingredientsHtml += `<li>${ingredient}</li>`;
-    });
-    ingredientsHtml += '</ul>';
+	currentIndex = index;
+	const recipe = recipes[index];
+	const detailContent = document.getElementById("detailContent");
 
-    let directionsHtml = '<ol>';
-    recipe.directions.forEach(direction => {
-        directionsHtml += `<li>${direction}</li>`;
-    });
-    directionsHtml += '</ol>';
+	let ingredientsHtml = "";
+	recipe.ingredients.forEach((section) => {
+		ingredientsHtml += `<h4>${section.title}</h4><ul>`;
+		section.items.forEach((ingredient) => {
+			ingredientsHtml += `<li>${ingredient}</li>`;
+		});
+		ingredientsHtml += "</ul>";
+	});
 
-    detailContent.innerHTML = `
+	let directionsHtml = "";
+	recipe.directions.forEach((section) => {
+		directionsHtml += `<h4>${section.title}</h4><ol>`;
+		section.items.forEach((direction) => {
+			directionsHtml += `<li>${direction}</li>`;
+		});
+		directionsHtml += "</ol>";
+	});
+
+	detailContent.innerHTML = `
         <h2 id="recipeName">${recipe.name}</h2>
         <h3>Description</h3>
-        <p id="recipeDescription">${recipe.description || ''}</p>
+        <p id="recipeDescription">${recipe.description || ""}</p>
         <h3>Ingredients</h3>
         ${ingredientsHtml}
         <h3>Directions</h3>
         ${directionsHtml}
     `;
 
-    document.getElementById('loadButtons').style.display = 'none';
-    document.getElementById('searchInput').style.display = 'none';
-    document.getElementById('recipeList').style.display = 'none';
-    document.getElementById('recipeDetail').style.display = 'block';
+	document.getElementById("loadButtons").style.display = "none";
+	document.getElementById("searchInput").style.display = "none";
+	document.getElementById("recipeList").style.display = "none";
+	document.getElementById("recipeDetail").style.display = "block";
 
-    const editSaveButton = document.getElementById('editSaveButton');
-    editSaveButton.innerText = 'Edit Recipe';
+	const editSaveButton = document.getElementById("editSaveButton");
+	editSaveButton.innerText = "Edit Recipe";
 }
 
 function toggleEditMode() {
-    const editSaveButton = document.getElementById('editSaveButton');
-    const detailContent = document.getElementById('detailContent');
+	const editSaveButton = document.getElementById("editSaveButton");
+	const detailContent = document.getElementById("detailContent");
 
-    if (editSaveButton.innerText === 'Edit Recipe') {
-        enterEditMode(detailContent);
-        editSaveButton.innerText = 'Save Changes';
-    } else {
-        saveRecipeChanges();
-        editSaveButton.innerText = 'Edit Recipe';
-    }
+	if (editSaveButton.innerText === "Edit Recipe") {
+		enterEditMode(detailContent);
+		editSaveButton.innerText = "Save Changes";
+	} else {
+		saveRecipeChanges();
+		editSaveButton.innerText = "Edit Recipe";
+	}
 }
 
 function enterEditMode(detailContent) {
-    const recipe = recipes[currentIndex];
+	const recipe = recipes[currentIndex];
 
-    let ingredientsHtml = '<ul id="ingredientsList">';
-    recipe.ingredients.forEach((ingredient, index) => {
-        ingredientsHtml += `<li><input type="text" value="${ingredient}" class="ingredientInput" /> <button onclick="removeIngredient(${index})">Remove</button></li>`;
-    });
-    ingredientsHtml += '</ul><button onclick="addIngredient()">Add Ingredient</button>';
+	let ingredientsHtml = "";
+	recipe.ingredients.forEach((section, sectionIndex) => {
+		ingredientsHtml += `
+            <div class="ingredient-section" data-section-index="${sectionIndex}">
+                <h4><input type="text" value="${section.title}" class="ingredientSectionTitle" /></h4>
+                <textarea class="ingredientTextarea" data-section-index="${sectionIndex}">${section.items.join("\n")}</textarea>
+                <button onclick="removeIngredientSection(${sectionIndex})">Remove Section</button>
+            </div>
+        `;
+	});
+	ingredientsHtml += `<button onclick="addIngredientSection()">Add Ingredient Section</button>`;
 
-    let directionsHtml = '<ol id="directionsList">';
-    recipe.directions.forEach((direction, index) => {
-        directionsHtml += `<li><textarea class="directionInput">${direction}</textarea> <button onclick="removeDirection(${index})">Remove</button></li>`;
-    });
-    directionsHtml += '</ol><button onclick="addDirection()">Add Direction</button>';
+	let directionsHtml = "";
+	recipe.directions.forEach((section, sectionIndex) => {
+		directionsHtml += `
+            <div class="direction-section" data-section-index="${sectionIndex}">
+                <h4><input type="text" value="${section.title}" class="directionSectionTitle" /></h4>
+                <textarea class="directionTextarea" data-section-index="${sectionIndex}">${section.items.join("\n")}</textarea>
+                <button onclick="removeDirectionSection(${sectionIndex})">Remove Section</button>
+            </div>
+        `;
+	});
+	directionsHtml += `<button onclick="addDirectionSection()">Add Direction Section</button>`;
 
-    detailContent.innerHTML = `
+	detailContent.innerHTML = `
         <h2><input type="text" id="recipeName" value="${recipe.name}" /></h2>
         <h3>Description</h3>
-        <textarea id="recipeDescription">${recipe.description || ''}</textarea>
+        <textarea id="recipeDescription">${recipe.description || ""}</textarea>
         <h3>Ingredients</h3>
-        ${ingredientsHtml}
+        <div id="ingredientsContainer">${ingredientsHtml}</div>
         <h3>Directions</h3>
-        ${directionsHtml}
+        <div id="directionsContainer">${directionsHtml}</div>
     `;
 }
 
-function addIngredient() {
-    const ingredientsList = document.getElementById('ingredientsList');
-    const newIngredientIndex = ingredientsList.children.length;
-    const newIngredient = document.createElement('li');
-    newIngredient.innerHTML = `<input type="text" class="ingredientInput" /> <button onclick="removeIngredient(${newIngredientIndex})">Remove</button>`;
-    ingredientsList.appendChild(newIngredient);
+function addIngredientSection() {
+	const ingredientsContainer = document.getElementById("ingredientsContainer");
+	const sectionIndex = document.querySelectorAll(".ingredient-section").length;
+	const newSection = document.createElement("div");
+	newSection.classList.add("ingredient-section");
+	newSection.setAttribute("data-section-index", sectionIndex);
+	newSection.innerHTML = `
+        <h4><input type="text" class="ingredientSectionTitle" placeholder="Section Title" /></h4>
+        <textarea class="ingredientTextarea" data-section-index="${sectionIndex}" placeholder="Enter ingredients, one per line"></textarea>
+        <button onclick="removeIngredientSection(${sectionIndex})">Remove Section</button>
+    `;
+	ingredientsContainer.insertBefore(newSection, ingredientsContainer.lastElementChild);
+	updateSectionIndices(".ingredient-section", "ingredientTextarea", "removeIngredientSection");
 }
 
-function removeIngredient(index) {
-    const ingredientsList = document.getElementById('ingredientsList');
-    ingredientsList.removeChild(ingredientsList.children[index]);
-    updateRemoveButtons('ingredientInput', 'removeIngredient');
+function removeIngredientSection(index) {
+	const section = document.querySelector(`.ingredient-section[data-section-index="${index}"]`);
+	section.parentElement.removeChild(section);
+	updateSectionIndices(".ingredient-section", "ingredientTextarea", "removeIngredientSection");
 }
 
-function addDirection() {
-    const directionsList = document.getElementById('directionsList');
-    const newDirectionIndex = directionsList.children.length;
-    const newDirection = document.createElement('li');
-    newDirection.innerHTML = `<textarea class="directionInput"></textarea> <button onclick="removeDirection(${newDirectionIndex})">Remove</button>`;
-    directionsList.appendChild(newDirection);
+function addDirectionSection() {
+	const directionsContainer = document.getElementById("directionsContainer");
+	const sectionIndex = document.querySelectorAll(".direction-section").length;
+	const newSection = document.createElement("div");
+	newSection.classList.add("direction-section");
+	newSection.setAttribute("data-section-index", sectionIndex);
+	newSection.innerHTML = `
+        <h4><input type="text" class="directionSectionTitle" placeholder="Section Title" /></h4>
+        <textarea class="directionTextarea" data-section-index="${sectionIndex}" placeholder="Enter directions, one per line"></textarea>
+        <button onclick="removeDirectionSection(${sectionIndex})">Remove Section</button>
+    `;
+	directionsContainer.insertBefore(newSection, directionsContainer.lastElementChild);
+	updateSectionIndices(".direction-section", "directionTextarea", "removeDirectionSection");
 }
 
-function removeDirection(index) {
-    const directionsList = document.getElementById('directionsList');
-    directionsList.removeChild(directionsList.children[index]);
-    updateRemoveButtons('directionInput', 'removeDirection');
+function removeDirectionSection(index) {
+	const section = document.querySelector(`.direction-section[data-section-index="${index}"]`);
+	section.parentElement.removeChild(section);
+	updateSectionIndices(".direction-section", "directionTextarea", "removeDirectionSection");
 }
 
-function updateRemoveButtons(inputClass, removeFunction) {
-    const inputs = document.querySelectorAll(`.${inputClass}`);
-    inputs.forEach((input, index) => {
-        const button = input.parentElement.querySelector('button');
-        button.setAttribute('onclick', `${removeFunction}(${index})`);
-    });
+function updateSectionIndices(sectionClass, textareaClass, removeFunction) {
+	const sections = document.querySelectorAll(sectionClass);
+	sections.forEach((section, index) => {
+		section.setAttribute("data-section-index", index);
+		const textarea = section.querySelector(`.${textareaClass}`);
+		textarea.setAttribute("data-section-index", index);
+		const button = section.querySelector("button");
+		button.setAttribute("onclick", `${removeFunction}(${index})`);
+	});
 }
 
 function goBack() {
-    document.getElementById('loadButtons').style.display = 'flex';
-    document.getElementById('searchInput').style.display = 'block';
-    document.getElementById('recipeList').style.display = 'grid';
-    document.getElementById('recipeDetail').style.display = 'none';
+	document.getElementById("loadButtons").style.display = "flex";
+	document.getElementById("searchInput").style.display = "block";
+	document.getElementById("recipeList").style.display = "grid";
+	document.getElementById("recipeDetail").style.display = "none";
 }
 
 function saveRecipeChanges() {
-    const updatedRecipe = {
-        name: document.getElementById('recipeName').value,
-        description: document.getElementById('recipeDescription').value,
-        ingredients: Array.from(document.querySelectorAll('.ingredientInput')).map(input => input.value),
-        directions: Array.from(document.querySelectorAll('.directionInput')).map(input => input.value)
-    };
+	const updatedRecipe = {
+		name: document.getElementById("recipeName").value,
+		description: document.getElementById("recipeDescription").value,
+		ingredients: [],
+		directions: []
+	};
 
-    recipes[currentIndex] = updatedRecipe;
-    saveRecipesToLocalStorage();
-    alert('Recipe changes saved!');
-    showRecipeDetail(currentIndex);
+	const ingredientSections = document.querySelectorAll(".ingredientSectionTitle");
+	ingredientSections.forEach((sectionTitle, sectionIndex) => {
+		const section = {
+			title: sectionTitle.value,
+			items: []
+		};
+		const textarea = document.querySelector(`.ingredientTextarea[data-section-index="${sectionIndex}"]`);
+		section.items = textarea.value
+			.split("\n")
+			.map((item) => item.trim())
+			.filter((item) => item);
+		updatedRecipe.ingredients.push(section);
+	});
+
+	const directionSections = document.querySelectorAll(".directionSectionTitle");
+	directionSections.forEach((sectionTitle, sectionIndex) => {
+		const section = {
+			title: sectionTitle.value,
+			items: []
+		};
+		const textarea = document.querySelector(`.directionTextarea[data-section-index="${sectionIndex}"]`);
+		section.items = textarea.value
+			.split("\n")
+			.map((item) => item.trim())
+			.filter((item) => item);
+		updatedRecipe.directions.push(section);
+	});
+
+	recipes[currentIndex] = updatedRecipe;
+	saveRecipesToLocalStorage();
+	alert("Recipe changes saved!");
+	showRecipeDetail(currentIndex);
 }
 
 function downloadRecipes() {
-    const blob = new Blob([JSON.stringify(recipes, null, 2)], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'updated_recipes.json';
-    link.click();
+	const blob = new Blob([JSON.stringify(recipes, null, 2)], { type: "application/json" });
+	const link = document.createElement("a");
+	link.href = URL.createObjectURL(blob);
+	link.download = "updated_recipes.json";
+	link.click();
 }
 
 function saveRecipesToLocalStorage() {
-    localStorage.setItem('recipes', JSON.stringify(recipes));
+	localStorage.setItem("recipes", JSON.stringify(recipes));
 }
 
 function loadRecipesFromLocalStorage() {
-    const storedRecipes = localStorage.getItem('recipes');
-    if (storedRecipes) {
-        recipes = JSON.parse(storedRecipes);
-        displayRecipeCards();
-    }
+	const storedRecipes = localStorage.getItem("recipes");
+	if (storedRecipes) {
+		recipes = JSON.parse(storedRecipes);
+		displayRecipeCards();
+	}
 }
 
 function clearRecipes() {
-    localStorage.removeItem('recipes');
-    recipes = [];
-    displayRecipeCards();
+	localStorage.removeItem("recipes");
+	recipes = [];
+	displayRecipeCards();
 }

@@ -1,20 +1,30 @@
 {
-    "name": "Recipe Viewer",
-    "short_name": "Recipes",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#007BFF",
-    "icons": [
-        {
-            "src": "icons/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+	"name": "Let's Get Cooking!",
+	"short_name": "Recipes",
+	"start_url": ".",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#007BFF",
+	"icons": [
+		{
+			"src": "icons/apple-touch-icon-57x57.png",
+			"sizes": "57x57",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/apple-touch-icon-180x180.png",
+			"sizes": "180x180",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
 }

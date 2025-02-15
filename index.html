@@ -1,56 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Viewer</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icons/icon-192x192.png">
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Let's Get Cooking!</title>
+		<link rel="stylesheet" href="styles.css" />
+		<link rel="manifest" href="manifest.json" />
+		<link rel="icon" sizes="192x192" href="icons/icon-192x192.png" />
+		<link rel="icon" sizes="512x512" href="icons/icon-512x512.png" />
+		<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-touch-icon-57x57.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180x180.png" />
+	</head>
+	<body>
+		<header>
+			<h1>Let's Get Cooking!</h1>
+		</header>
 
-    <header>
-        <h1>Recipe Viewer</h1>
-    </header>
+		<div class="container">
+			<!-- File input for uploading the JSON file -->
+			<div id="loadButtons" class="button-container">
+				<label for="fileInput" id="uploadButton" class="button">Load Recipes</label>
+				<input type="file" id="fileInput" accept=".json" />
+				<button id="downloadButton" class="button" onclick="downloadRecipes()">Save Recipes</button>
+				<button id="clearButton" class="button" onclick="clearRecipes()">Clear Recipes</button>
+			</div>
 
-    <div class="container">
-        <!-- File input for uploading the JSON file -->
-        <div id="loadButtons" class="button-container">
-            <label for="fileInput" id="uploadButton" class="button">Upload Recipes</label>
-            <input type="file" id="fileInput" accept=".json" style="display: none;">
-            <button id="downloadButton" class="button" onclick="downloadRecipes()">Download Recipes</button>
-            <button id="clearButton" class="button" onclick="clearRecipes()">Clear Recipes</button>
-        </div>
-        
-        <!-- Search input for filtering recipes -->
-        <input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes()">
-        
-        <!-- Section for displaying recipe cards -->
-        <div id="recipeList" class="recipe-list"></div>
+			<!-- Search input for filtering recipes -->
+			<input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes()" />
 
-        <!-- Section for displaying recipe details -->
-        <div id="recipeDetail" class="recipe-detail">
-            <div id="detailButtons" class="button-container">
-                <button id="backButton" onclick="goBack()" class="button">Back to Recipe List</button>
-                <button id="editSaveButton" onclick="toggleEditMode()" class="button">Edit Recipe</button>
-            </div>
-            <div id="detailContent"></div>
-        </div>
-    </div>
+			<!-- Section for displaying recipe cards -->
+			<div id="recipeList" class="recipe-list"></div>
 
+			<!-- Section for displaying recipe details -->
+			<div id="recipeDetail" class="recipe-detail">
+				<div id="detailButtons" class="button-container">
+					<button id="backButton" onclick="goBack()" class="button">Back to Recipe List</button>
+					<button id="editSaveButton" onclick="toggleEditMode()" class="button">Edit Recipe</button>
+				</div>
+				<div id="detailContent"></div>
+			</div>
+		</div>
 
-    <script src="scripts.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        }
-    </script>
-</body>
+		<script src="scripts.js"></script>
+		<script>
+			if ("serviceWorker" in navigator) {
+				navigator.serviceWorker
+					.register("/service-worker.js")
+					.then((registration) => {
+						console.log("Service Worker registered with scope:", registration.scope);
+					})
+					.catch((error) => {
+						console.log("Service Worker registration failed:", error);
+					});
+			}
+		</script>
+	</body>
 </html>
