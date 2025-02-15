@@ -7,8 +7,28 @@
 	"theme_color": "#007BFF",
 	"icons": [
 		{
+			"src": "icons/icon-44x44.png",
+			"sizes": "44x44",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-50x50.png",
+			"sizes": "50x50",
+			"type": "image/png"
+		},
+		{
 			"src": "icons/apple-touch-icon-57x57.png",
 			"sizes": "57x57",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-71x71.png",
+			"sizes": "71x71",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-150x150.png",
+			"sizes": "150x150",
 			"type": "image/png"
 		},
 		{
@@ -19,6 +39,11 @@
 		{
 			"src": "icons/icon-192x192.png",
 			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "icons/icon-310x310.png",
+			"sizes": "310x310",
 			"type": "image/png"
 		},
 		{
