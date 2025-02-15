@@ -1,1 +1,3 @@
 # recipe-viewer
+
+This is a progressive web app that is basically just an interface for displaying and editing recipes. You can load data into it from a JSON file, and it will be saved in your browser's local storage. You can edit recipes using the interface, and the changes will be saved to that recipe data in the browser. Then you can save a new JSON file to your device's file system which will reflect all the updates you've made. If you want to share your recipes with anyone else, you'll have to hand them a JSON file containing the data, which they can then load into this app on their own device.
