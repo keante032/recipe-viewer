@@ -102,10 +102,10 @@ function showRecipeDetail(index) {
         ${directionsHtml}
     `;
 
-	document.getElementById("loadButtons").style.display = "none";
-	document.getElementById("searchInput").style.display = "none";
-	document.getElementById("recipeList").style.display = "none";
-	document.getElementById("recipeDetail").style.display = "block";
+	document.getElementById("loadButtons").classList.add("hidden");
+	document.getElementById("searchInput").classList.add("hidden");
+	document.getElementById("recipeList").classList.add("hidden");
+	document.getElementById("recipeDetail").classList.remove("hidden");
 
 	const editSaveButton = document.getElementById("editSaveButton");
 	editSaveButton.innerText = "Edit Recipe";
@@ -119,11 +119,11 @@ function toggleEditMode() {
 	if (editSaveButton.innerText === "Edit Recipe") {
 		enterEditMode(detailContent);
 		editSaveButton.innerText = "Save Changes";
-		deleteButton.style.display = "inline-block";
+		deleteButton.classList.remove("hidden");
 	} else {
 		saveRecipeChanges();
 		editSaveButton.innerText = "Edit Recipe";
-		deleteButton.style.display = "none";
+		deleteButton.classList.add("hidden");
 	}
 }
 
@@ -223,11 +223,10 @@ function updateSectionIndices(sectionClass, textareaClass, removeFunction) {
 }
 
 function goBack() {
-	document.getElementById("loadButtons").style.display = "flex";
-	document.getElementById("searchInput").style.display = "block";
-	document.getElementById("recipeList").style.display = "grid";
-	document.getElementById("recipeDetail").style.display = "none";
-	document.getElementById("deleteButton").style.display = "none";
+	document.getElementById("searchInput").classList.remove("hidden");
+	document.getElementById("recipeList").classList.remove("hidden");
+	document.getElementById("recipeDetail").classList.add("hidden");
+	document.getElementById("deleteButton").classList.add("hidden");
 }
 
 function saveRecipeChanges() {
@@ -293,10 +292,16 @@ function loadRecipesFromLocalStorage() {
 	}
 }
 
-function clearRecipes() {
+function purgeRecipes() {
 	localStorage.removeItem("recipes");
 	recipes = [];
 	displayRecipeCards();
+}
+
+function confirmPurgeRecipes() {
+	if (confirm("Are you sure you want to purge all recipes? This action cannot be undone.")) {
+		purgeRecipes();
+	}
 }
 
 function addNewRecipe() {
@@ -321,4 +326,15 @@ function deleteRecipe() {
 		displayRecipeCards();
 		goBack();
 	}
+}
+
+function confirmDeleteRecipe() {
+	if (confirm("Are you sure you want to delete this recipe? This action cannot be undone.")) {
+		deleteRecipe();
+	}
+}
+
+function toggleMenu() {
+	const loadButtons = document.getElementById("loadButtons");
+	loadButtons.classList.toggle("hidden");
 }
