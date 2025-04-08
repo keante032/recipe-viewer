@@ -103,6 +103,16 @@ h1 {
 	padding: 0 10px; /* Add padding to prevent content from being cut off */
 }
 
+.recipe-detail-image {
+	float: right;
+	max-width: 40%;
+	max-height: 600px;
+	object-fit: contain;
+	border-radius: 8px;
+	margin-left: 20px;
+	margin-bottom: 20px;
+}
+
 .button-container {
 	display: flex;
 	justify-content: center;

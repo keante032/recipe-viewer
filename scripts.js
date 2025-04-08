@@ -1,30 +1,52 @@
 let recipes = [];
 let currentIndex = null;
 
+function handleFileSelect(event) {
+	try {
+		const file = event.target.files[0];
+		if (!file) {
+			throw new Error("No file selected.");
+		}
+
+		const reader = new FileReader();
+
+		reader.onload = (e) => {
+			try {
+				const parsedData = JSON.parse(e.target.result);
+
+				// Validate JSON structure
+				if (!Array.isArray(parsedData)) {
+					throw new Error("Invalid JSON format: Root element must be an array.");
+				}
+				parsedData.forEach((recipe, index) => {
+					if (typeof recipe.name !== "string" || !Array.isArray(recipe.ingredients) || !Array.isArray(recipe.directions)) {
+						throw new Error(`Invalid recipe format at index ${index}.`);
+					}
+				});
+
+				recipes = parsedData;
+				saveRecipesToLocalStorage();
+				displayRecipeCards();
+			} catch (error) {
+				throw new Error(`Invalid JSON format in the uploaded file: ${error.message}`);
+			}
+		};
+
+		reader.onerror = () => {
+			throw new Error("Error reading the file.");
+		};
+
+		reader.readAsText(file);
+	} catch (error) {
+		console.error("Error handling file select:", error);
+		alert(`An error occurred while loading the file: ${error.message}`);
+	}
+}
+
 document.getElementById("fileInput").addEventListener("change", handleFileSelect);
 document.addEventListener("DOMContentLoaded", loadRecipesFromLocalStorage);
 
-function handleFileSelect(event) {
-	const file = event.target.files[0];
-
-	if (!file) return;
-
-	const reader = new FileReader();
-
-	reader.onload = function (e) {
-		try {
-			recipes = JSON.parse(e.target.result);
-			saveRecipesToLocalStorage();
-			displayRecipeCards();
-		} catch (error) {
-			alert("Error parsing the JSON file");
-		}
-	};
-
-	reader.readAsText(file);
-}
-
-function displayRecipeCards() {
+const displayRecipeCards = () => {
 	const recipeList = document.getElementById("recipeList");
 	recipeList.innerHTML = "";
 
@@ -33,14 +55,14 @@ function displayRecipeCards() {
 		card.classList.add("recipe-card");
 		card.innerHTML = `
             <h3>${recipe.name}</h3>
-            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}">` : ""}
+            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}" loading="lazy">` : ""}
         `;
 
 		card.addEventListener("click", () => showRecipeDetail(index));
 
 		recipeList.appendChild(card);
 	});
-}
+};
 
 function filterRecipes() {
 	const searchText = document.getElementById("searchInput").value.toLowerCase();
@@ -92,7 +114,11 @@ function showRecipeDetail(index) {
 		directionsHtml += "</ol>";
 	});
 
+	// Add the recipe image if it exists
+	const imageHtml = recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.name}" class="recipe-detail-image">` : "";
+
 	detailContent.innerHTML = `
+        ${imageHtml}
         <h2 id="recipeName">${recipe.name}</h2>
         <h3>Description</h3>
         <p id="recipeDescription">${recipe.description || ""}</p>
@@ -206,21 +232,52 @@ function addDirectionSection() {
 }
 
 function removeDirectionSection(index) {
-	const section = document.querySelector(`.direction-section[data-section-index="${index}"]`);
-	section.parentElement.removeChild(section);
-	updateSectionIndices(".direction-section", "directionTextarea", "removeDirectionSection");
+	try {
+		const section = document.querySelector(`.direction-section[data-section-index="${index}"]`);
+		if (!section) {
+			throw new Error(`Direction section with index ${index} not found.`);
+		}
+		section.parentElement.removeChild(section);
+		updateSectionIndices(".direction-section", "directionTextarea", "removeDirectionSection");
+	} catch (error) {
+		console.error("Error removing direction section:", error);
+		alert("An error occurred while removing the direction section. Please try again.");
+	}
 }
 
-function updateSectionIndices(sectionClass, textareaClass, removeFunction) {
-	const sections = document.querySelectorAll(sectionClass);
-	sections.forEach((section, index) => {
-		section.setAttribute("data-section-index", index);
-		const textarea = section.querySelector(`.${textareaClass}`);
-		textarea.setAttribute("data-section-index", index);
-		const button = section.querySelector("button");
-		button.setAttribute("onclick", `${removeFunction}(${index})`);
-	});
-}
+const updateSectionIndices = (sectionClass, textareaClass, removeFunction) => {
+	try {
+		const sections = document.querySelectorAll(sectionClass);
+
+		if (!sections.length) {
+			throw new Error(`No sections found for class: ${sectionClass}`);
+		}
+
+		sections.forEach((section, index) => {
+			// Update the section's data attribute
+			section.dataset.sectionIndex = index;
+
+			// Update the textarea's data attribute
+			const textarea = section.querySelector(`.${textareaClass}`);
+			if (textarea) {
+				textarea.dataset.sectionIndex = index;
+			} else {
+				console.warn(`Textarea not found in section with index ${index}`);
+			}
+
+			// Update the button's onclick attribute
+			const button = section.querySelector("button");
+			if (button) {
+				button.onclick = () => window[removeFunction](index);
+			} else {
+				console.warn(`Button not found in section with index ${index}`);
+			}
+		});
+	} catch (error) {
+		console.error("Error updating section indices:", error);
+		alert("An error occurred while updating section indices. Please refresh the page and try again.");
+	}
+};
 
 function goBack() {
 	document.getElementById("searchInput").classList.remove("hidden");
@@ -229,48 +286,65 @@ function goBack() {
 	document.getElementById("deleteButton").classList.add("hidden");
 }
 
-function saveRecipeChanges() {
-	const updatedRecipe = {
-		name: document.getElementById("recipeName").value,
-		description: document.getElementById("recipeDescription").value,
-		imageUrl: document.getElementById("recipeImageUrl").value,
-		ingredients: [],
-		directions: []
-	};
-
-	const ingredientSections = document.querySelectorAll(".ingredientSectionTitle");
-	ingredientSections.forEach((sectionTitle, sectionIndex) => {
-		const section = {
-			title: sectionTitle.value,
-			items: []
+const saveRecipeChanges = () => {
+	try {
+		const updatedRecipe = {
+			name: document.getElementById("recipeName").value.trim(),
+			description: document.getElementById("recipeDescription").value.trim(),
+			imageUrl: document.getElementById("recipeImageUrl").value.trim(),
+			ingredients: [],
+			directions: []
 		};
-		const textarea = document.querySelector(`.ingredientTextarea[data-section-index="${sectionIndex}"]`);
-		section.items = textarea.value
-			.split("\n")
-			.map((item) => item.trim())
-			.filter((item) => item);
-		updatedRecipe.ingredients.push(section);
-	});
 
-	const directionSections = document.querySelectorAll(".directionSectionTitle");
-	directionSections.forEach((sectionTitle, sectionIndex) => {
-		const section = {
-			title: sectionTitle.value,
-			items: []
-		};
-		const textarea = document.querySelector(`.directionTextarea[data-section-index="${sectionIndex}"]`);
-		section.items = textarea.value
-			.split("\n")
-			.map((item) => item.trim())
-			.filter((item) => item);
-		updatedRecipe.directions.push(section);
-	});
+		if (!updatedRecipe.name) {
+			throw new Error("Recipe name cannot be empty.");
+		}
 
-	recipes[currentIndex] = updatedRecipe;
-	saveRecipesToLocalStorage();
-	alert("Recipe changes saved!");
-	showRecipeDetail(currentIndex);
-}
+		const ingredientSections = document.querySelectorAll(".ingredientSectionTitle");
+		ingredientSections.forEach((sectionTitle, sectionIndex) => {
+			const section = {
+				title: sectionTitle.value.trim(),
+				items: []
+			};
+			const textarea = document.querySelector(`.ingredientTextarea[data-section-index="${sectionIndex}"]`);
+			if (textarea) {
+				section.items = textarea.value
+					.split("\n")
+					.map((item) => item.trim())
+					.filter((item) => item);
+			} else {
+				console.warn(`Textarea not found for ingredient section index ${sectionIndex}`);
+			}
+			updatedRecipe.ingredients.push(section);
+		});
+
+		const directionSections = document.querySelectorAll(".directionSectionTitle");
+		directionSections.forEach((sectionTitle, sectionIndex) => {
+			const section = {
+				title: sectionTitle.value.trim(),
+				items: []
+			};
+			const textarea = document.querySelector(`.directionTextarea[data-section-index="${sectionIndex}"]`);
+			if (textarea) {
+				section.items = textarea.value
+					.split("\n")
+					.map((item) => item.trim())
+					.filter((item) => item);
+			} else {
+				console.warn(`Textarea not found for direction section index ${sectionIndex}`);
+			}
+			updatedRecipe.directions.push(section);
+		});
+
+		recipes[currentIndex] = updatedRecipe;
+		saveRecipesToLocalStorage();
+		alert("Recipe changes saved successfully!");
+		showRecipeDetail(currentIndex);
+	} catch (error) {
+		console.error("Error saving recipe changes:", error);
+		alert(`An error occurred while saving the recipe: ${error.message}`);
+	}
+};
 
 function downloadRecipes() {
 	const blob = new Blob([JSON.stringify(recipes, null, 2)], { type: "application/json" });
@@ -281,14 +355,24 @@ function downloadRecipes() {
 }
 
 function saveRecipesToLocalStorage() {
-	localStorage.setItem("recipes", JSON.stringify(recipes));
+	localStorage.setItem("recipes", JSON.stringify(recipes)); // Ensure recipes is stringified
 }
 
 function loadRecipesFromLocalStorage() {
-	const storedRecipes = localStorage.getItem("recipes");
-	if (storedRecipes) {
+	try {
+		const storedRecipes = localStorage.getItem("recipes");
+		if (!storedRecipes) {
+			console.warn("No recipes found in local storage.");
+			return;
+		}
+
+		// Validate and parse JSON
 		recipes = JSON.parse(storedRecipes);
 		displayRecipeCards();
+	} catch (error) {
+		console.error("Error loading recipes from local storage:", error);
+		alert("An error occurred while loading recipes. Local storage data may be corrupted.");
+		recipes = [];
 	}
 }
 
