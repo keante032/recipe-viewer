@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -21,8 +21,9 @@
 			<!-- File input for uploading the JSON file -->
 			<div id="loadButtons" class="button-container hidden">
 				<label for="fileInput" id="uploadButton" class="button button-green">Load</label>
-				<input type="file" id="fileInput" accept=".json" />
+				<input type="file" id="fileInput" accept=".txt,.json" />
 				<button id="downloadButton" class="button button-blue" onclick="downloadRecipes()">Save</button>
+				<button id="shareButton" class="button button-blue" onclick="shareRecipes()">⇄</button>
 				<button id="addRecipeButton" onclick="addNewRecipe()" class="button button-orange">Add New</button>
 				<button id="purgeButton" class="button button-red" onclick="confirmPurgeRecipes()">Purge</button>
 			</div>
