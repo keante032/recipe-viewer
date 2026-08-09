@@ -354,6 +354,26 @@ function downloadRecipes() {
 	link.click();
 }
 
+async function shareRecipes() {
+	const blob = new Blob([JSON.stringify(recipes, null, 2)], { type: "text/plain" });
+	const file = new File([blob], "updated_recipes.txt", { type: "text/plain" });
+	const shareData = {
+		files: [file]
+	};
+	try {
+		if (navigator.canShare && navigator.canShare(shareData)) {
+			await navigator.share(shareData);
+			console.log("Recipes shared successfully!");
+		} else {
+			console.warn("Sharing not supported on this browser.");
+			alert("Sharing is not supported on this browser. Please download the file instead.");
+		}
+	} catch (error) {
+		console.error("Error sharing recipes:", error);
+		alert("An error occurred while sharing the recipes.");
+	}
+}
+
 function saveRecipesToLocalStorage() {
 	localStorage.setItem("recipes", JSON.stringify(recipes)); // Ensure recipes is stringified
 }
