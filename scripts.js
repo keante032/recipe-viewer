@@ -64,6 +64,21 @@ const displayRecipeCards = () => {
 	});
 };
 
+navigator.serviceWorker.addEventListener("message", (event) => {
+	if (event.data && event.data.type === "SHARE_TARGET_FILE") {
+		const { name, text } = event.data;
+		console.log(`Received file via share: ${name}`);
+		try {
+			recipes = JSON.parse(text);
+			displayRecipeCards();
+		} catch (error) {
+			console.error("Error loading recipes from local storage:", error);
+			alert("An error occurred while loading recipes. Local storage data may be corrupted.");
+			recipes = [];
+		}
+	}
+});
+
 function filterRecipes() {
 	const searchText = document.getElementById("searchInput").value.toLowerCase();
 	const filteredRecipes = recipes
@@ -352,6 +367,28 @@ function downloadRecipes() {
 	link.href = URL.createObjectURL(blob);
 	link.download = "updated_recipes.json";
 	link.click();
+}
+
+async function shareRecipes() {
+	const blob = new Blob([JSON.stringify(recipes, null, 2)], { type: "text/plain" });
+	const file = new File([blob], "updated_recipes.txt", { type: "text/plain" });
+	const shareData = {
+		title: "Updated Recipes",
+		text: "Check out my updated recipes!",
+		files: [file]
+	};
+	try {
+		if (navigator.canShare && navigator.canShare(shareData)) {
+			await navigator.share(shareData);
+			console.log("Recipes shared successfully!");
+		} else {
+			console.warn("Sharing not supported on this browser.");
+			alert("Sharing is not supported on this browser. Please download the file instead.");
+		}
+	} catch (error) {
+		console.error("Error sharing recipes:", error);
+		alert("An error occurred while sharing the recipes.");
+	}
 }
 
 function saveRecipesToLocalStorage() {
