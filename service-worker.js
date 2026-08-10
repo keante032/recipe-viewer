@@ -2,7 +2,6 @@ const CACHE_NAME = "recipe-cache-v1";
 const urlsToCache = ["/", "/index.html", "/styles.css", "/scripts.js", "/manifest.json", "/icons/icon-192x192.png", "/icons/icon-512x512.png"];
 
 self.addEventListener("install", (event) => {
-	self.skipWaiting(); // Force activation immediately
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
 			return cache.addAll(urlsToCache);
@@ -13,43 +12,49 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
-	// Intercept the POST request targeting the physical dummy file
-	if (event.request.method === "POST" && url.pathname.includes("share-target.html")) {
+	// 1. Intercept the Web Share Target incoming POST request
+	if (event.request.method === "POST" && url.pathname === "/share-target") {
 		event.respondWith(
 			(async () => {
 				try {
 					const formData = await event.request.formData();
-					const file = formData.get("shared_files");
+					const file = formData.get("recipesFile"); // Matches manifest name
 
 					if (file) {
+						const fileName = file.name;
 						const fileText = await file.text();
 
-						// Securely save the full file contents into cache storage
-						const cache = await caches.open(CACHE_NAME);
-						await cache.put(
-							new Request("/temporary-shared-file-data"),
-							new Response(fileText, {
-								headers: { "Content-Type": "text/plain" }
-							})
-						);
+						// Wait a brief moment for the redirected client window to be ready
+						setTimeout(async () => {
+							const clientsList = await self.clients.matchAll({ type: "window" });
+							for (const client of clientsList) {
+								// Send file name and raw text/json contents directly to scripts.js
+								client.postMessage({
+									type: "SHARE_TARGET_FILE",
+									name: fileName,
+									text: fileText
+								});
+							}
+						}, 1000);
 					}
 				} catch (err) {
-					console.error("Failed to extract multipart form file data:", err);
+					console.error("Failed to parse shared file:", err);
 				}
 
-				// Redirect safely back to your main working application interface
-				return Response.redirect("./", 303);
+				// Redirect the PWA window back to the main UI app state
+				return Response.redirect("/", 303);
 			})()
 		);
 		return;
 	}
 
-	// Standard caching strategy
+	// 2. Your existing standard caching fetch strategy
 	event.respondWith(
 		caches.match(event.request).then((response) => {
 			return (
 				response ||
 				fetch(event.request).then((fetchResponse) => {
+					// Cache recipe images dynamically
 					if (url.pathname.endsWith(".jpg") || url.pathname.endsWith(".png")) {
 						return caches.open(CACHE_NAME).then((cache) => {
 							cache.put(event.request, fetchResponse.clone());
@@ -66,7 +71,6 @@ self.addEventListener("fetch", (event) => {
 self.addEventListener("activate", (event) => {
 	const cacheWhitelist = [CACHE_NAME];
 	event.waitUntil(
-		self.clients.claim(), // Take control of open pages immediately
 		caches.keys().then((cacheNames) => {
 			return Promise.all(
 				cacheNames.map((cacheName) => {
