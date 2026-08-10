@@ -72,9 +72,38 @@ navigator.serviceWorker.addEventListener("message", (event) => {
 			recipes = JSON.parse(text);
 			displayRecipeCards();
 		} catch (error) {
-			console.error("Error loading recipes from local storage:", error);
-			alert("An error occurred while loading recipes. Local storage data may be corrupted.");
+			console.error("Error loading recipes from shared file:", error);
+			alert("An error occurred while loading recipes from the shared file.");
 			recipes = [];
+		}
+	}
+});
+
+window.addEventListener("DOMContentLoaded", async () => {
+	// Check if a shared file payload is waiting in the temporary cache route
+	if ("caches" in window) {
+		try {
+			const cache = await caches.open("recipe-cache-v1");
+			const savedResponse = await cache.match("/temporary-shared-file-data");
+
+			if (savedResponse) {
+				const text = await savedResponse.text();
+				console.log("Successfully extracted text from shared file bootstrapper:", text);
+
+				try {
+					recipes = JSON.parse(text);
+					displayRecipeCards();
+				} catch (error) {
+					console.error("Error loading recipes from shared file:", error);
+					alert("An error occurred while loading recipes from the shared file.");
+					recipes = [];
+				}
+
+				// Clean up the temporary route so it doesn't trigger on subsequent reloads
+				await cache.delete("/temporary-shared-file-data");
+			}
+		} catch (err) {
+			console.error("Error reading shared payload from cache storage:", err);
 		}
 	}
 });

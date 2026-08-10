@@ -13,45 +13,39 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
-	// 1. Bulletproof Share Target Interception
-	// Checks for POST requests containing '/share-target' regardless of trailing slashes
-	if (event.request.method === "POST" && url.pathname.includes("/share-target")) {
-		// We create the redirect response IMMEDIATELY so the static server never sees the POST
-		const redirectResponse = Response.redirect("/", 303);
-
-		// Process the file payload in the background using waitUntil to keep the worker alive
-		event.waitUntil(
+	// 1. Intercept the Share Target Request
+	if (event.request.method === "POST" && url.pathname.includes("share-target")) {
+		event.respondWith(
 			(async () => {
 				try {
 					const formData = await event.request.formData();
-					const file = formData.get("shared_files"); // Must match manifest name
+					const file = formData.get("shared_files");
 
 					if (file) {
-						const fileName = file.name;
 						const fileText = await file.text();
 
-						// Broadcast the file contents to all open PWA windows
-						const clientsList = await self.clients.matchAll({ type: "window" });
-						for (const client of clientsList) {
-							client.postMessage({
-								type: "SHARE_TARGET_FILE",
-								name: fileName,
-								text: fileText
-							});
-						}
+						// Put the shared text data into a temporary cache route
+						// This prevents data loss during the redirect process
+						const cache = await caches.open(CACHE_NAME);
+						await cache.put(
+							new Request("/temporary-shared-file-data"),
+							new Response(fileText, {
+								headers: { "Content-Type": "text/plain" }
+							})
+						);
 					}
 				} catch (err) {
-					console.error("Service Worker failed to process shared file data:", err);
+					console.error("Failed to temporarily cache shared target data:", err);
 				}
+
+				// Redirect back to the PWA home screen root folder safely
+				return Response.redirect("./", 303);
 			})()
 		);
-
-		// Serve the redirect right away to clear the 405 error
-		event.respondWith(redirectResponse);
 		return;
 	}
 
-	// 2. Your existing standard caching fetch strategy
+	// 2. Standard Application Fetch Caching Strategy
 	event.respondWith(
 		caches.match(event.request).then((response) => {
 			return (

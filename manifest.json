@@ -2,15 +2,16 @@
 	"name": "Let's Get Cooking!",
 	"short_name": "Recipes",
 	"start_url": ".",
+	"scope": "./",
 	"display": "standalone",
 	"share_target": {
-		"action": "https://keante032.github.io/recipe-viewer/share-target",
+		"action": "share-target",
 		"method": "POST",
 		"enctype": "multipart/form-data",
 		"params": {
 			"files": [
 				{
-					"name": "recipesFile",
+					"name": "shared_files",
 					"accept": ["text/plain", "application/json", ".txt", ".json"]
 				}
 			]
