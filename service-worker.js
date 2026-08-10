@@ -2,6 +2,7 @@ const CACHE_NAME = "recipe-cache-v1";
 const urlsToCache = ["/", "/index.html", "/styles.css", "/scripts.js", "/manifest.json", "/icons/icon-192x192.png", "/icons/icon-512x512.png"];
 
 self.addEventListener("install", (event) => {
+	self.skipWaiting(); // Force activation immediately
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
 			return cache.addAll(urlsToCache);
@@ -71,6 +72,7 @@ self.addEventListener("fetch", (event) => {
 self.addEventListener("activate", (event) => {
 	const cacheWhitelist = [CACHE_NAME];
 	event.waitUntil(
+		self.clients.claim(), // Take control of open pages immediately
 		caches.keys().then((cacheNames) => {
 			return Promise.all(
 				cacheNames.map((cacheName) => {
