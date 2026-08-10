@@ -13,25 +13,35 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
-	// Intercept the GET share target
-	if (url.pathname.includes("share-target")) {
-		const sharedText = url.searchParams.get("shared_text") || url.searchParams.get("shared_url");
+	// Intercept the POST request targeting the physical dummy file
+	if (event.request.method === "POST" && url.pathname.includes("share-target.html")) {
+		event.respondWith(
+			(async () => {
+				try {
+					const formData = await event.request.formData();
+					const file = formData.get("shared_files");
 
-		if (sharedText) {
-			event.respondWith(
-				(async () => {
-					try {
+					if (file) {
+						const fileText = await file.text();
+
+						// Securely save the full file contents into cache storage
 						const cache = await caches.open(CACHE_NAME);
-						await cache.put(new Request("/temporary-shared-file-data"), new Response(sharedText, { headers: { "Content-Type": "text/plain" } }));
-					} catch (err) {
-						console.error("Failed to cache shared GET query stream:", err);
+						await cache.put(
+							new Request("/temporary-shared-file-data"),
+							new Response(fileText, {
+								headers: { "Content-Type": "text/plain" }
+							})
+						);
 					}
-					// Safely redirect to your main index file without server interference
-					return Response.redirect("./", 303);
-				})()
-			);
-			return;
-		}
+				} catch (err) {
+					console.error("Failed to extract multipart form file data:", err);
+				}
+
+				// Redirect safely back to your main working application interface
+				return Response.redirect("./", 303);
+			})()
+		);
+		return;
 	}
 
 	// Standard caching strategy
