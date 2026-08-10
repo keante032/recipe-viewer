@@ -13,39 +13,41 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
-	// 1. Intercept the Web Share Target incoming POST request
-	if (event.request.method === "POST" && url.pathname.endsWith("/share-target")) {
-		event.respondWith(
+	// 1. Bulletproof Share Target Interception
+	// Checks for POST requests containing '/share-target' regardless of trailing slashes
+	if (event.request.method === "POST" && url.pathname.includes("/share-target")) {
+		// We create the redirect response IMMEDIATELY so the static server never sees the POST
+		const redirectResponse = Response.redirect("/", 303);
+
+		// Process the file payload in the background using waitUntil to keep the worker alive
+		event.waitUntil(
 			(async () => {
 				try {
 					const formData = await event.request.formData();
-					const file = formData.get("recipesFile"); // Matches manifest name
+					const file = formData.get("shared_files"); // Must match manifest name
 
 					if (file) {
 						const fileName = file.name;
 						const fileText = await file.text();
 
-						// Wait a brief moment for the redirected client window to be ready
-						setTimeout(async () => {
-							const clientsList = await self.clients.matchAll({ type: "window" });
-							for (const client of clientsList) {
-								// Send file name and raw text/json contents directly to scripts.js
-								client.postMessage({
-									type: "SHARE_TARGET_FILE",
-									name: fileName,
-									text: fileText
-								});
-							}
-						}, 1000);
+						// Broadcast the file contents to all open PWA windows
+						const clientsList = await self.clients.matchAll({ type: "window" });
+						for (const client of clientsList) {
+							client.postMessage({
+								type: "SHARE_TARGET_FILE",
+								name: fileName,
+								text: fileText
+							});
+						}
 					}
 				} catch (err) {
-					console.error("Failed to parse shared file:", err);
+					console.error("Service Worker failed to process shared file data:", err);
 				}
-
-				// Redirect the PWA window back to the main UI app state
-				return Response.redirect("/", 303);
 			})()
 		);
+
+		// Serve the redirect right away to clear the 405 error
+		event.respondWith(redirectResponse);
 		return;
 	}
 
@@ -55,7 +57,6 @@ self.addEventListener("fetch", (event) => {
 			return (
 				response ||
 				fetch(event.request).then((fetchResponse) => {
-					// Cache recipe images dynamically
 					if (url.pathname.endsWith(".jpg") || url.pathname.endsWith(".png")) {
 						return caches.open(CACHE_NAME).then((cache) => {
 							cache.put(event.request, fetchResponse.clone());
