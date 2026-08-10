@@ -13,39 +13,28 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
-	// 1. Intercept the Share Target Request
-	if (event.request.method === "POST" && url.pathname.includes("share-target")) {
-		event.respondWith(
-			(async () => {
-				try {
-					const formData = await event.request.formData();
-					const file = formData.get("shared_files");
+	// Intercept the GET share target
+	if (url.pathname.includes("share-target")) {
+		const sharedText = url.searchParams.get("shared_text") || url.searchParams.get("shared_url");
 
-					if (file) {
-						const fileText = await file.text();
-
-						// Put the shared text data into a temporary cache route
-						// This prevents data loss during the redirect process
+		if (sharedText) {
+			event.respondWith(
+				(async () => {
+					try {
 						const cache = await caches.open(CACHE_NAME);
-						await cache.put(
-							new Request("/temporary-shared-file-data"),
-							new Response(fileText, {
-								headers: { "Content-Type": "text/plain" }
-							})
-						);
+						await cache.put(new Request("/temporary-shared-file-data"), new Response(sharedText, { headers: { "Content-Type": "text/plain" } }));
+					} catch (err) {
+						console.error("Failed to cache shared GET query stream:", err);
 					}
-				} catch (err) {
-					console.error("Failed to temporarily cache shared target data:", err);
-				}
-
-				// Redirect back to the PWA home screen root folder safely
-				return Response.redirect("./", 303);
-			})()
-		);
-		return;
+					// Safely redirect to your main index file without server interference
+					return Response.redirect("./", 303);
+				})()
+			);
+			return;
+		}
 	}
 
-	// 2. Standard Application Fetch Caching Strategy
+	// Standard caching strategy
 	event.respondWith(
 		caches.match(event.request).then((response) => {
 			return (
