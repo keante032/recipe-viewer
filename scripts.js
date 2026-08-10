@@ -64,21 +64,6 @@ const displayRecipeCards = () => {
 	});
 };
 
-navigator.serviceWorker.addEventListener("message", (event) => {
-	if (event.data && event.data.type === "SHARE_TARGET_FILE") {
-		const { name, text } = event.data;
-		console.log(`Received file via share: ${name}`);
-		try {
-			recipes = JSON.parse(text);
-			displayRecipeCards();
-		} catch (error) {
-			console.error("Error loading recipes from local storage:", error);
-			alert("An error occurred while loading recipes. Local storage data may be corrupted.");
-			recipes = [];
-		}
-	}
-});
-
 function filterRecipes() {
 	const searchText = document.getElementById("searchInput").value.toLowerCase();
 	const filteredRecipes = recipes
