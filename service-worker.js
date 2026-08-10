@@ -13,7 +13,7 @@ self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 
 	// 1. Intercept the Web Share Target incoming POST request
-	if (event.request.method === "POST" && url.pathname === "/share-target") {
+	if (event.request.method === "POST" && url.pathname.endsWith("/share-target")) {
 		event.respondWith(
 			(async () => {
 				try {
